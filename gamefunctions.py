@@ -1,19 +1,23 @@
-#gamefunctions.py
-#Eric Pratt
-#10/6/2024
+"""Module for gamefunctions.
 
-#purchase_item displays how many items purchased and quantity of money remaing.
-#new_random_monster, dictionary for a class of monster, returning health, power, and money for 3
-#different named monsters.
+Game functions including print_welcome which prints a welcome message, print_shop_menu which displays
+a menu for 2 items with prices, purchase_item which returns number of items purchased and remaining
+funds from a starting bankroll, and random_monster which allocates attribute values for a monster chosen
+from a list."""
 
 import random
-
 
 
 def purchase_item(itemPrice: float, startingMoney: float, quantityToPurchase: int = 1):
     """
 Takes and item price and starting money as float integers, and a quantity to purchase as an integer
 and returns number of items bought and the remaining money
+
+Parameters:
+    itemPrice and startingMoney (float): the cost of the item and available funds
+    quantityToPurchase (int): number of items desired to be purchased
+Returns:
+    the number of items bought and the money that is remaining 
 """
     # Calculate how many items can be purchased
     max_items = int(startingMoney // itemPrice)
@@ -32,6 +36,11 @@ def new_random_monster():
     """
 Calls a random monster from a list of defined monsters from keys, and returns characteristics about
 the monster including name, description, health range, and money range
+
+Parameters:
+    Monster name from list
+Returns
+    Random attributes within a range for the chosen monster
 """    
     monsters = {
         'Ogre': {
@@ -70,6 +79,10 @@ the monster including name, description, health range, and money range
 def print_welcome(name: str, width: int=20): #creates welcome message centered at width 20(can be changed)
     """
 Welcome Message creates a welcome message centered at width that can be adjusted
+
+Parameters:
+    name (str)
+Returns welcome message for the user input (str)
 """    
     message = f'Hello, {name}!'
     print(f'{message.center(width)}')
@@ -78,6 +91,11 @@ Welcome Message creates a welcome message centered at width that can be adjusted
 def print_shop_menu(item1Name: str, item1Price: float, item2Name: str, item2Price: float):
     """
 Prints a sign that contains a list of two items and their corresponding prices
+
+Parameters:
+    items (str)
+    prices (float)
+Returns both items and prices centered on a bordered menu
 """    
     item1Listing = f'{item1Name:<12}${item1Price:>7.2f}' #create listing name to the right and price to the left
     item2Listing = f'{item2Name:<12}${item2Price:>7.2f}'
@@ -86,37 +104,19 @@ Prints a sign that contains a list of two items and their corresponding prices
     print(f'| {item2Listing} |')
     print('\\-----------------------/')
 
-#running each function 3 times to display functionality
-print('---purchase_item---')
-print('number purchased and leftover money for 2.25 price, 11 starting money, 2 quantity')
-num_purchased, leftover_money = purchase_item(2.25, 11, 2)
-print(num_purchased)
-print(leftover_money)
 
-print('number purchased and leftover money for 1.75 price, 8 starting money, 3 quantity')
-num_purchased, leftover_money = purchase_item(1.75, 8, 3)    
-print(num_purchased)
-print(leftover_money)
-
-print('number purchased and leftover money for 3.10 price, 9 starting money, 2 quantity')
-num_purchased, leftover_money = purchase_item(3.10, 9, 2)
-print(num_purchased)
-print(leftover_money)
-
-print('---random_monster---')
-for _ in range(3):
+def test_functions():
+    """
+Function to test all the game functions
+"""
+    print_welcome('Jeff', width=20)
+    print_shop_menu('Bagel', 4.99, 'Utensils', 11.00)
+    items_bought, remaining_money = purchase_item(4.0, 20.0, 3)
+    print(f'Items bought: {items_bought}, Remaining money: ${remaining_money:.2f}')
     monster = new_random_monster()
-    print(f"Monster: {monster['name']}")
-    print(f"Description: {monster['description']}")
-    print(f"Health: {monster['health']}, Power: {monster['power']}, Money: ${monster['money']}")
-
-print('---print_welcome---')
-print_welcome('Jeff')
-print_welcome('Eric')
-print_welcome('Baxter')
-
-print('---print_shop_menu---')
-print_shop_menu('Banana', 2.00, 'Apple', 0.99)
-print_shop_menu('Bread', 4.00, 'Milk', 5.50)
-print_shop_menu('Cereal', 5.25, 'Butter', 2.25)
-
+    print(f"Monster: {monster['name']}, Description: {monster['description']}, "
+          f"Health: {monster['health']}, Power: {monster['power']}, Money: ${monster['money']}")
+    
+if __name__=='__main__':   #Ensure test_functions() runs only if the script is executed from main
+    test_functions()
+    
