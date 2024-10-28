@@ -119,4 +119,90 @@ Function to test all the game functions
     
 if __name__=='__main__':   #Ensure test_functions() runs only if the script is executed from main
     test_functions()
-    
+
+
+def fight_monster(current_hp, monster):
+    """
+interactive fight with user and random monster
+"""
+    monster_hp = monster['health']
+    print(f"\nA {monster['name']}!")
+    print(f"Description: {monster['description']}")
+    print(f"Monster HP: {monster_hp}, Power: {monster['power']}")
+
+    while current_hp > 0 and monster_hp > 0:
+        player_dmg = random.randint(10, 50) #player damage dealt set arbitrarily
+        
+        monster_dmg = monster['power']
+        monster_hp -= player_dmg
+        
+        print(f"You dealt {player_dmg} damage to the {monster['name']}")
+              
+        current_hp -= monster_dmg
+              
+        print(f"The {monster['name']} dealt {monster_dmg} damage to you")
+              
+        if monster_hp <= 0:
+              print(f"You defeated the {monster['name']}!")
+              return current_hp
+            
+        elif current_hp <= 0:
+            return current_hp
+
+        choice = input("Do you want to continue to fight (1) or run (2)? ")
+        if choice != '1':
+            print("You ran away")
+            return current_hp
+
+    return current_hp #return the remaing health of player
+
+
+
+def sleep(current_hp, current_money):
+    """
+restores health if funds are available
+"""
+    if current_money >= 5:
+        current_hp += 20 # restores some health if enough funds are available
+        current_money -= 5
+        print("You have rested and restored 20 HP")
+    else:
+        print("You do not have enough money to rest in the tavern")
+    return current_hp, current_money
+
+if __name__=='__main__':   #Ensure script is executed from main
+    main()
+
+        
+def main():
+    player_name = input('Please enter your name: ')
+    gamefunctions.print_welcome(player_name)  # Prints a basic welcome message
+    current_hp = 100  # Starts the player's health at 100
+    current_money = 20  # Player's starting money
+    is_playing = True  # When is_playing is False, the game ends
+
+    while is_playing: 
+        print(f"\nCurrent HP: {current_hp}, Current Money: {current_money}")  # Display current stats
+        print("What would you like to do?")
+        print("1) Fight Monster")
+        print("2) Sleep (Restore HP for 5 Money)")
+        print("3) Quit")
+
+        decision = input('Enter your decision (1-3): ')  # Prompt user to choose an action
+
+        if decision == '1':
+            monster = gamefunctions.new_random_monster() 
+            current_hp = fight_monster(current_hp, monster)  # Initiates fight
+            if current_hp <= 0:
+                is_playing = False  # Exits game if health falls below 0
+        elif decision == '2':
+            current_hp, current_money = sleep(current_hp, current_money)  # Updates health and money with sleep function
+        elif decision == '3':
+            print('Thank you for playing!')
+            is_playing = False  # Exits the game
+        else:
+            print("Invalid entry, please choose (1-3)")
+
+if __name__ == '__main__':
+    main()       
+        
