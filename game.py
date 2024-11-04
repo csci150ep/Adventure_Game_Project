@@ -4,32 +4,46 @@ import gamefunctions #import functions from gamefunctions used in game.py
 
 def main():
     player_name = input('Please enter your name: ')
-    gamefunctions.print_welcome(player_name) #prints a basic welcome message
-    current_hp = 100 #starts the players health at 100
-    current_money = 20 #players starting with an arbitrary amount of money set to 20
-    is_playing = True #when is playing is false the game ends
+    gamefunctions.print_welcome(player_name)  # Prints a basic welcome message
+    current_hp = 100  # Starts the player's health at 100
+    current_money = 20  # Player's starting money
+    is_playing = True  # When is_playing is False, the game ends
+
+    inventory = [] #initialize initial empty inventory
+    equipped_item = None
+
     while is_playing: 
-        print(f"\nCurrent HP: {current_hp}, Current Money: {current_money}") #Display current stats
+        print(f"\nCurrent HP: {current_hp}, Current Money: {current_money}")  # Display current stats
         print("What would you like to do?")
         print("1) Fight Monster")
-        print("2) Sleep (Restore 20 HP for 5 Money)")
-        print("3) Quit")
+        print("2) Sleep (Restore HP for 5 Money)")
+        print("3) Equip Weapon")
+        print("4) Go to Shop")
+        print("5) Quit")
 
-        decision = input('Enter your decision (1-3): ') #prompts user to choose an action
+        decision = input('Enter your decision (1-5): ')  # Prompt user to choose an action
 
         if decision == '1':
             monster = gamefunctions.new_random_monster() 
-            current_hp = gamefunctions.fight_monster(current_hp, monster) #initiates fight from gamefunctions
+            current_hp = fight_monster(current_hp, monster)  # Initiates fight
             if current_hp <= 0:
-                print('You have been slain!')
-                is_playing = False # exits game if health falls below 0
+                is_playing = False  # Exits game if health falls below 0
         elif decision == '2':
-            current_hp, current_money = gamefunctions.sleep(current_hp, current_money) # updates health and money with sleep function from gamefunctions
+            current_hp, current_money = sleep(current_hp, current_money)  # Updates health and money with sleep function
         elif decision == '3':
-            print('Thank you for playing!')
-            is_playing = False # exits the game
+            equipped_item = gamefunctions.equip_item(inventory)
+            if equipped_item:
+                print(f"You equipped {equipped_item['name']}.")
+            else:
+                print("No item equipped.")
+        elif decision == '4':
+            gamefunctions.shop(inventory, current_money)
+        elif decision == '5':
+            print("Thank you for playing!")
+            is_playing = False
         else:
-            print("Invalid entry, please choose (1-3)")
-    
-if __name__=='__main__':
+            print("Invalid entry, please choose (1-5)")
+
+
+if __name__ == '__main__':
     main()

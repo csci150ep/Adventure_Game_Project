@@ -88,7 +88,8 @@ Returns welcome message for the user input (str)
     print(f'{message.center(width)}')
 
 
-def print_shop_menu(item1Name: str, item1Price: float, item2Name: str, item2Price: float):
+
+def print_shop_menu(shop_items):
     """
 Prints a sign that contains a list of two items and their corresponding prices
 
@@ -96,13 +97,12 @@ Parameters:
     items (str)
     prices (float)
 Returns both items and prices centered on a bordered menu
-"""    
-    item1Listing = f'{item1Name:<12}${item1Price:>7.2f}' #create listing name to the right and price to the left
-    item2Listing = f'{item2Name:<12}${item2Price:>7.2f}'
+"""
     print('/-----------------------\\')
-    print(f'| {item1Listing} |')
-    print(f'| {item2Listing} |')
+    for item in shop_items:
+        print(f"| {item['name']:<12} ${item['price']:>7.2f} |")
     print('\\-----------------------/')
+
 
 
 def test_functions():
@@ -110,18 +110,15 @@ def test_functions():
 Function to test all the game functions
 """
     print_welcome('Jeff', width=20)
-    print_shop_menu('Bagel', 4.99, 'Utensils', 11.00)
+    print_shop_menu([{'name': 'Bagel', 'price': 4.99}, {'name': 'Utensils', 'price': 11.00}])
     items_bought, remaining_money = purchase_item(4.0, 20.0, 3)
     print(f'Items bought: {items_bought}, Remaining money: ${remaining_money:.2f}')
     monster = new_random_monster()
     print(f"Monster: {monster['name']}, Description: {monster['description']}, "
           f"Health: {monster['health']}, Power: {monster['power']}, Money: ${monster['money']}")
-    
-if __name__=='__main__':   #Ensure test_functions() runs only if the script is executed from main
-    test_functions()
 
 
-def fight_monster(current_hp, monster):
+def fight_monster(current_hp, monster, equipped_item=None):
     """
 interactive fight with user and random monster
 """
@@ -131,22 +128,24 @@ interactive fight with user and random monster
     print(f"Monster HP: {monster_hp}, Power: {monster['power']}")
 
     while current_hp > 0 and monster_hp > 0:
-        player_dmg = random.randint(10, 50) #player damage dealt set arbitrarily
-        
-        monster_dmg = monster['power']
+        player_dmg = random.randint(10, 50) if equipped_item is None else random.randint(10, 50) + (equipped_item.get('power', 0)) #player damage dealt set arbitrarily
+
+        if equipped_item and equipped_item['currentDurability'] > 0:
+            equipped_item['currentDurability'] -= 1
+        else:
+            equipped_item = None
+
         monster_hp -= player_dmg
-        
         print(f"You dealt {player_dmg} damage to the {monster['name']}")
-              
-        current_hp -= monster_dmg
-              
-        print(f"The {monster['name']} dealt {monster_dmg} damage to you")
+
+        current_hp -= monster['power']
+        print(f"The {monster['name']} dealt {monster['power']} damage to you.")
               
         if monster_hp <= 0:
               print(f"You defeated the {monster['name']}!")
-              return current_hp
-            
+              return current_hp   
         elif current_hp <= 0:
+            print("You have been slain!")
             return current_hp
 
         choice = input("Do you want to continue to fight (1) or run (2)? ")
@@ -170,9 +169,41 @@ restores health if funds are available
         print("You do not have enough money to rest in the tavern")
     return current_hp, current_money
 
-if __name__=='__main__':   #Ensure script is executed from main
-    main()
+def equip_item(inventory):
+    print("Available weapons to equip:")
+    for idx, item in enumerate(inventory):
+        if item['type'] == 'weapon':
+            print(f"{idx + 1}: {item['name']} (Durability: {item['currentDurability']}")
+    choice = input("Select an item to equip (number) or '0' to cancel: ")
+    if choice.isdigit() and 1 <= int(choice) <= len(inventory):
+        return inventory[int(choice) - 1]
+    return None
 
+    
+def shop(inventory, current_money):
+    shop_items = [
+        {"name": "sword", "type": "weapon", "maxDurability": 10, "currentDurability": 10, "price": 15.00},
+        {"name": "buckler", "type": "shield", "maxDurability": 6, "currentDurability": 6, "price": 10.00},
+        {"name": "potion", "type": "consumable", "note": "restores hp", "price": 5.00}
+    ]
+
+    print_shop_menu(shop_items)
+
+    item_name = input("Enter the name of the item you wish to buy: ")
+    quantity = int(input("How many would you like to buy?"))
+
+    for item in shop_items:
+        if item['name'].lower() == item_name.lower():
+            total_cost = item['price'] * quantity
+            if current_money >= total_cost:
+                current_money -= total_cost
+                inventory.append({**item, 'quantity': quantity}) #add item to inventory for quantity purchased
+                print(f"You purchased {quantity} {item_name}(s).")
+            else:
+                print("You do not have enough money.")
+            break
+    else:
+        print("Item not found in shop.")
         
 def main():
     player_name = input('Please enter your name: ')
@@ -181,14 +212,19 @@ def main():
     current_money = 20  # Player's starting money
     is_playing = True  # When is_playing is False, the game ends
 
+    inventory = [] #initialize initial empty inventory
+    equipped_item = None
+
     while is_playing: 
         print(f"\nCurrent HP: {current_hp}, Current Money: {current_money}")  # Display current stats
         print("What would you like to do?")
         print("1) Fight Monster")
         print("2) Sleep (Restore HP for 5 Money)")
-        print("3) Quit")
+        print("3) Equip Weapon")
+        print("4) Go to Shop")
+        print("5) Quit")
 
-        decision = input('Enter your decision (1-3): ')  # Prompt user to choose an action
+        decision = input('Enter your decision (1-5): ')  # Prompt user to choose an action
 
         if decision == '1':
             monster = gamefunctions.new_random_monster() 
@@ -198,10 +234,19 @@ def main():
         elif decision == '2':
             current_hp, current_money = sleep(current_hp, current_money)  # Updates health and money with sleep function
         elif decision == '3':
-            print('Thank you for playing!')
-            is_playing = False  # Exits the game
+            equipped_item = equip_item(inventory)
+            if equipped_item:
+                print(f"You equipped {equipped_item['name']}.")
+            else:
+                print("No item equipped.")
+        elif decision == '4':
+            shop(inventory, current_money)
+        elif decision == '5':
+            print("Thank you for playing!")
+            is_playing = False
         else:
-            print("Invalid entry, please choose (1-3)")
+            print("Invalid entry, please choose (1-5)")
+
 
 if __name__ == '__main__':
     main()       
