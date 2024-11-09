@@ -172,7 +172,7 @@ restores health if funds are available
 def equip_item(inventory):
     print("Available weapons to equip:")
     for idx, item in enumerate(inventory):
-        if item['type'] == 'weapon':
+        if item['type'] == 'weapon' and item['currentDurability'] > 0:
             print(f"{idx + 1}: {item['name']} (Durability: {item['currentDurability']}")
     choice = input("Select an item to equip (number) or '0' to cancel: ")
     if choice.isdigit() and 1 <= int(choice) <= len(inventory):
@@ -189,21 +189,27 @@ def shop(inventory, current_money):
 
     print_shop_menu(shop_items)
 
-    item_name = input("Enter the name of the item you wish to buy: ")
-    quantity = int(input("How many would you like to buy?"))
+    item_name = input("Enter the name of the item you wish to buy: ").strip().lower()
+    quantity = int(input("How many would you like to buy?").strip())
+
+    item_found = False #check to see if item was found in shop
+
 
     for item in shop_items:
-        if item['name'].lower() == item_name.lower():
+        if item['name'].lower() == item_name:
             total_cost = item['price'] * quantity
             if current_money >= total_cost:
                 current_money -= total_cost
                 inventory.append({**item, 'quantity': quantity}) #add item to inventory for quantity purchased
                 print(f"You purchased {quantity} {item_name}(s).")
+                item_found = True
             else:
                 print("You do not have enough money.")
             break
-    else:
+    if not item_found:
         print("Item not found in shop.")
+    return inventory, current_money
+        
         
 def main():
     player_name = input('Please enter your name: ')
@@ -234,13 +240,13 @@ def main():
         elif decision == '2':
             current_hp, current_money = sleep(current_hp, current_money)  # Updates health and money with sleep function
         elif decision == '3':
-            equipped_item = equip_item(inventory)
+            equipped_item = gamefunctions.equip_item(inventory)
             if equipped_item:
                 print(f"You equipped {equipped_item['name']}.")
             else:
                 print("No item equipped.")
         elif decision == '4':
-            shop(inventory, current_money)
+            inventory, current_money = gamefunctions.shop(inventory, current_money)
         elif decision == '5':
             print("Thank you for playing!")
             is_playing = False

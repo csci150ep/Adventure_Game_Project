@@ -25,11 +25,11 @@ def main():
 
         if decision == '1':
             monster = gamefunctions.new_random_monster() 
-            current_hp = fight_monster(current_hp, monster)  # Initiates fight
+            current_hp = gamefunctions.fight_monster(current_hp, monster)  # Initiates fight
             if current_hp <= 0:
                 is_playing = False  # Exits game if health falls below 0
         elif decision == '2':
-            current_hp, current_money = sleep(current_hp, current_money)  # Updates health and money with sleep function
+            current_hp, current_money = gamefunctions.sleep(current_hp, current_money)  # Updates health and money with sleep function
         elif decision == '3':
             equipped_item = gamefunctions.equip_item(inventory)
             if equipped_item:
@@ -37,7 +37,7 @@ def main():
             else:
                 print("No item equipped.")
         elif decision == '4':
-            gamefunctions.shop(inventory, current_money)
+            inventory, current_money = gamefunctions.shop(inventory, current_money)
         elif decision == '5':
             print("Thank you for playing!")
             is_playing = False
