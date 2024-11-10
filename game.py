@@ -1,16 +1,38 @@
 """ Interactive game where a users character has an adventure managing health and money to purchase items and fight monsters """
 import random
 import gamefunctions #import functions from gamefunctions used in game.py
+import json
 
 def main():
-    player_name = input('Please enter your name: ')
-    gamefunctions.print_welcome(player_name)  # Prints a basic welcome message
-    current_hp = 100  # Starts the player's health at 100
-    current_money = 20  # Player's starting money
-    is_playing = True  # When is_playing is False, the game ends
 
-    inventory = [] #initialize initial empty inventory
-    equipped_item = None
+    choice = input("Would you like to (1) start a new game or (2) load a previously saved game? ")
+    if choice == '2':
+        game_state = gamefunctions.load_game()
+        if game_state:
+            player_name = game_state["player_name"]
+            inventory = game_state["inventory"]
+            current_money = game_state["current_money"]
+            current_hp = game_state["current_hp"]
+            equipped_item = game_state["equipped_item"]
+        else:
+            player_name = input("Please enter your name: ")
+            inventory = []
+            current_money = 20
+            current_hp = 100
+            equipped_item = None
+    else:
+            player_name = input("Please enter your name: ")
+            inventory = []
+            current_money = 20
+            current_hp = 100
+            equipped_item = None
+
+    
+
+                                                    
+    gamefunctions.print_welcome(player_name)  # Prints a basic welcome message
+    is_playing = True
+
 
     while is_playing: 
         print(f"\nCurrent HP: {current_hp}, Current Money: {current_money}")  # Display current stats
@@ -19,9 +41,10 @@ def main():
         print("2) Sleep (Restore HP for 5 Money)")
         print("3) Equip Weapon")
         print("4) Go to Shop")
-        print("5) Quit")
+        print("5) Save and Quit")
+        print("6) Quit without Saving")
 
-        decision = input('Enter your decision (1-5): ')  # Prompt user to choose an action
+        decision = input('Enter your decision (1-6): ')  # Prompt user to choose an action
 
         if decision == '1':
             monster = gamefunctions.new_random_monster() 
@@ -39,10 +62,14 @@ def main():
         elif decision == '4':
             inventory, current_money = gamefunctions.shop(inventory, current_money)
         elif decision == '5':
+            gamefunctions.save_game(player_name, inventory, current_money, current_hp, equipped_item)
             print("Thank you for playing!")
             is_playing = False
+        elif decision == '6':
+            print("Exiting without saving, thanks for playing!")
+            is_playing = False
         else:
-            print("Invalid entry, please choose (1-5)")
+            print("Invalid entry, please choose (1-6)")
 
 
 if __name__ == '__main__':

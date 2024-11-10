@@ -6,6 +6,32 @@ funds from a starting bankroll, and random_monster which allocates attribute val
 from a list."""
 
 import random
+import json
+
+def save_game(player_name, inventory, current_money, current_hp, equipped_item, filename = "savegame.json"):
+    """Saves the game state to a JSON file."""
+    game_state = {
+        "player_name": player_name,
+        "inventory": inventory,
+        "current_money": current_money,
+        "current_hp": current_hp,
+        "equipped_item": equipped_item
+    }
+    with open(filename, 'w') as file:
+        json.dump(game_state, file)
+    print(f"Game saved successfully to {filename}.")
+
+def load_game(filename="savegame.json"):
+    """Loads the game state from a JSON file."""
+    try:
+        with open(filename, 'r') as file:
+            game_state = json.load(file)
+        print(f"Game loaded successfully from {filename}.")
+        return game_state
+    except FileNotFoundError:
+        print(f"No save file found at {filename}. Starting a new game.")
+        return None
+    
 
 
 def purchase_item(itemPrice: float, startingMoney: float, quantityToPurchase: int = 1):
