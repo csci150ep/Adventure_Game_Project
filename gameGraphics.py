@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 GRID_SIZE = 10
 CELL_SIZE = 32
@@ -11,11 +12,24 @@ screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
 pygame.display.set_caption("Game Graphics")
 
 WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+BLACK = (0,0,0)
 
 player_position = [0, 0]
 player_rect = pygame.Rect(player_position[0] * CELL_SIZE, player_position[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+
+try:
+    player_sprite = pygame.image.load("C:/Users/omggd/Downloads/roguelikecreatures.png")
+    player_sprite = pygame.transform.scale(player_sprite, (CELL_SIZE, CELL_SIZE))
+except FileNotFoundError:
+    print("Player sprite not found. Using a black rectangle instead.")
+    player_sprite = None
+try:
+    monster_sprite = pygame.image.load("C:/Users/omggd/Downloads/rpgcritters2.png")
+    monster_sprite = pygame.transform.scale(monster_sprite, (CELL_SIZE, CELL_SIZE))
+except FileNotFoundError:
+    print("Monster sprite not found. Using red rectangles instead.")
+    monster_sprite = None
 
 class Monster:
     def __init__(self, x, y):
@@ -81,10 +95,15 @@ while running:
 
     screen.fill(WHITE)
 
-    pygame.draw.rect(screen, BLUE, player_rect)
-
+    if player_sprite:
+        screen.blit(player_sprite, player_rect.topleft)
+    else:
+        pygame.draw.rect(screen, BLACK, player_rect)
     for monster in monsters:
-        pygame.draw.rect(screen, RED, monster.rect)
+        if monster_sprite:
+            screen.blit(monster_sprite, monster.rect.topleft)
+        else:
+            pygame.draw.rect(screen, RED, monster.rect)
 
     pygame.display.flip()
 
